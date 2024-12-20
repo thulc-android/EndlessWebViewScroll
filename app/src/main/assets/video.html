@@ -31,11 +31,11 @@
             display: none; /* Hide video initially */
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/flv.js/dist/flv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js"></script>
 </head>
 <body>
 <div class="video-container">
-    <video id="videoElement" preload="auto" muted autoplay></video>
+    <video id="videoElement" preload="auto"></video>
 </div>
 <script>
     function playVideo(url) {
@@ -49,20 +49,31 @@
                 enableStashBuffer: false,
                 stashInitialSize: 128,
             });
-
             flvPlayer.attachMediaElement(videoElement);
             flvPlayer.load();
             flvPlayer.play();
 
-            videoElement.style.display = 'block'; // Make video visible
+            videoElement.oncanplay = function() {
 
-            flvPlayer.on('error', (errorType, errorDetail) => {
-                console.error(`FLV.js Error: ${errorType} - ${errorDetail}`);
+                videoElement.style.display = 'block'; // Show video
+            };
+
+            // Hide placeholder if video fails to load or take too long
+            videoElement.onerror = function() {
+
+            };
+
+            flvPlayer.on('error', function(errorType, errorDetail) {
+                console.log("Error: " + errorType + " - " + errorDetail);
             });
         } else {
             console.error("FLV.js is not supported in this browser.");
         }
     }
+
+    // Call playVideo with your URL
+    //playVideo('https://live.kk88813.net/kk-Casino-ba06.flv?token=a834ca88-c6b7-4bb0-a974-98bdc8c5f');
+
 </script>
 </body>
 </html>

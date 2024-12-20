@@ -46,12 +46,16 @@ class PagerAdapter(
 
                     override fun onPageFinished(view: WebView?, u: String?) {
                         super.onPageFinished(view, u)
+
+                        webView.loadUrl("javascript:playVideo('${labelValues[actualPosition]}')")
                     }
 
                     override fun onPageCommitVisible(view: WebView?, url: String?) {
                         super.onPageCommitVisible(view, url)
                     }
                 }
+
+                webView.loadUrl("file:///android_asset/video.html")
             }
         }
     }
