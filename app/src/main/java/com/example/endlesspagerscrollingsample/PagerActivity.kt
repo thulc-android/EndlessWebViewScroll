@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT
 import com.example.endlesspagerscrollingsample.adapter.PagerAdapter
 
 class PagerActivity : AppCompatActivity() {
@@ -20,20 +21,18 @@ class PagerActivity : AppCompatActivity() {
             insets
         }
 
-        val labels : HashMap<String, String>  = intent.getSerializableExtra("labels") as HashMap<String, String>
+        val labels: HashMap<String, String> =
+            intent.getSerializableExtra("labels") as HashMap<String, String>
         val selectedIndex = intent.getIntExtra("selectedIndex", 0)
 
-        Log.e("TEST","Label size ${labels?.size}")
-
         val viewPager = findViewById<ViewPager2>(R.id.viewPager)
-        viewPager.adapter = labels?.let { PagerAdapter(it) }
+        viewPager.offscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT
+        viewPager.adapter = labels?.let { PagerAdapter(activity = this@PagerActivity, it) }
 
         val labelKeys: List<String> = labels?.keys?.toList() ?: arrayListOf()
 
-        if(labelKeys.isNotEmpty()) {
-            val initialPosition =
-                (Int.MAX_VALUE / 2) - ((Int.MAX_VALUE / 2) % labelKeys.size) + selectedIndex
-            viewPager.setCurrentItem(initialPosition, false)
+        if (labelKeys.isNotEmpty()) {
+            viewPager.setCurrentItem(selectedIndex, false)
 
             viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
@@ -41,9 +40,11 @@ class PagerActivity : AppCompatActivity() {
                     val actualPosition = position % labelKeys.size
                     val currentLabel = labelKeys[actualPosition]
 
-                    // Example: Log the current item or update a title
                     title = "Viewing: $currentLabel"
-                    Log.d("PagerActivity", "Current Position: $actualPosition, Label: $currentLabel")
+                    Log.d(
+                        "PagerActivity",
+                        "Current Position: $actualPosition, Label: $currentLabel"
+                    )
                 }
             })
         }

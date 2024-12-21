@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>FLV Video</title>
+    <title>TG Baccarat</title>
     <style>
         body, html {
             margin: 0;
@@ -28,17 +28,17 @@
             object-fit: cover;
             transform: scale(1);
             transform-origin: bottom center;
-            display: none; /* Hide video initially */
+            display: none;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js"></script>
 </head>
 <body>
 <div class="video-container">
-    <video id="videoElement" preload="auto"></video>
+    <video id="videoElement"></video>
 </div>
 <script>
-    function playVideo(url) {
+    window.playVideo = function(url) {
         if (flvjs.isSupported()) {
             var videoElement = document.getElementById('videoElement');
             var flvPlayer = flvjs.createPlayer({
@@ -53,27 +53,29 @@
             flvPlayer.load();
             flvPlayer.play();
 
-            videoElement.oncanplay = function() {
-
-                videoElement.style.display = 'block'; // Show video
+            videoElement.oncanplay = function () {
+                videoElement.style.display = 'block';
+                if (window.Android && window.Android.onVideoReady) {
+                    window.Android.onVideoReady();
+                }
             };
 
-            // Hide placeholder if video fails to load or take too long
-            videoElement.onerror = function() {
-
+            videoElement.onerror = function () {
+                if (window.Android && window.Android.onVideoError) {
+                    window.Android.onVideoError("Video failed to load");
+                }
             };
 
-            flvPlayer.on('error', function(errorType, errorDetail) {
+            flvPlayer.on('error', function (errorType, errorDetail) {
                 console.log("Error: " + errorType + " - " + errorDetail);
+                if (window.Android && window.Android.onVideoError) {
+                    window.Android.onVideoError(errorType + ": " + errorDetail);
+                }
             });
         } else {
             console.error("FLV.js is not supported in this browser.");
         }
-    }
-
-    // Call playVideo with your URL
-    //playVideo('https://live.kk88813.net/kk-Casino-ba06.flv?token=a834ca88-c6b7-4bb0-a974-98bdc8c5f');
-
+    };
 </script>
 </body>
 </html>

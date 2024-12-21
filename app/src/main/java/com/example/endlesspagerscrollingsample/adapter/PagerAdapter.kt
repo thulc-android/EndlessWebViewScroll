@@ -1,19 +1,21 @@
 package com.example.endlesspagerscrollingsample.adapter
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
+import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebChromeClient
-import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.endlesspagerscrollingsample.R
+import com.example.endlesspagerscrollingsample.webImpl.VideoPlayerHelper
+import com.example.endlesspagerscrollingsample.webImpl.VideoPlayerHelperCallback
 
 class PagerAdapter(
+    val activity: Activity,
     labels: HashMap<String, String>,
 ) : RecyclerView.Adapter<PagerAdapter.DetailsViewHolder>() {
 
@@ -24,39 +26,21 @@ class PagerAdapter(
 
         private val labelText: TextView = itemView.findViewById(R.id.labelText)
         private val webView: WebView = itemView.findViewById(R.id.webView)
+        private val placeholderImage: AppCompatImageView =
+            itemView.findViewById(R.id.placeholderImage)
 
         @SuppressLint("SetJavaScriptEnabled", "SetTextI18n")
         fun bindView(position: Int) {
             val actualPosition = position % labelKeys.size
             labelText.text = "Label: ${labelKeys[actualPosition]}"
 
-            webView.apply {
-                settings.javaScriptEnabled = true
-                settings.allowFileAccess = true
-                settings.domStorageEnabled = true
-                settings.cacheMode = WebSettings.LOAD_NO_CACHE
-                settings.mediaPlaybackRequiresUserGesture = false
-
-                webChromeClient = WebChromeClient()
-
-                webViewClient = object : WebViewClient() {
-                    override fun onPageStarted(view: WebView?, u: String?, favicon: Bitmap?) {
-                        super.onPageStarted(view, u, favicon)
-                    }
-
-                    override fun onPageFinished(view: WebView?, u: String?) {
-                        super.onPageFinished(view, u)
-
-                        webView.loadUrl("javascript:playVideo('${labelValues[actualPosition]}')")
-                    }
-
-                    override fun onPageCommitVisible(view: WebView?, url: String?) {
-                        super.onPageCommitVisible(view, url)
-                    }
-                }
-
-                webView.loadUrl("file:///android_asset/video.html")
-            }
+            VideoPlayerHelper.configureWebView(
+                activity = activity,
+                webView = webView,
+                placeHolder = placeholderImage,
+                htmlUrl = "file:///android_asset/video.html",
+                videoUrl = labelValues[actualPosition],
+            )
         }
     }
 
@@ -70,5 +54,5 @@ class PagerAdapter(
         holder.bindView(position)
     }
 
-    override fun getItemCount() = Int.MAX_VALUE
+    override fun getItemCount() = labelValues.size
 }
